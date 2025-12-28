@@ -1,0 +1,26 @@
+name: Deploy to Cloud Functions
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}' # GitHubのSecretに保存
+
+      - id: 'deploy'
+        uses: 'google-github-actions/deploy-cloud-functions@v1'
+        with:
+          name: 'scraping-function'
+          runtime: 'python310'
+          region: 'asia-northeast1'
+          entry_point: 'hello_http'
+          source_dir: './src'
+          # HTTPトリガーを許可
+          https_trigger_security_level: 'secure_optional'
